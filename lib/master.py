@@ -1,13 +1,15 @@
 from abc import ABCMeta, abstractmethod
 import random
 from typing import List
-from .engine import Engine
-from .agent import Agent, Position
-from .area import Area
+from lib.engine import Engine
+from lib.agent import Agent, Position
+from lib.area import Area
 import ray
 from matplotlib import pyplot as plt
 from matplotlib import animation
 import numpy as np
+import os
+import datetime
 
 class Master:
     def __init__(self, config):
@@ -39,7 +41,7 @@ class Master:
 
     def run(self):
         results = []
-        step_num = 10
+        step_num = 30
         for i in range(step_num):
             wip_engines = [engine.prestep.remote() for engine in self.engines]
             ray.get(wip_engines)
@@ -78,12 +80,15 @@ class Master:
             'fig': fig,
             'func': _update,  # グラフを更新する関数
             'fargs': (),  # 関数の引数 (フレーム番号を除く)
-            'interval': 1000,  # 更新間隔 (ミリ秒)
+            'interval': 100,  # 更新間隔 (ミリ秒)
             'frames': np.arange(0, len(results), 1),  # フレーム番号を生成するイテレータ
             'repeat': True,  # 繰り返さない
         }
         anime = animation.FuncAnimation(**params)
 
+        dir_path = './results/{}'.format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
+        os.makedirs(dir_path, exist_ok=True)
+        anime.save("{}/result.gif".format(dir_path),writer='imagemagick')
         # グラフを表示する
         plt.show()
 
