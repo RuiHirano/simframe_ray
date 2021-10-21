@@ -1,10 +1,10 @@
 from abc import ABCMeta, abstractmethod
-from .agent import Agent
+from .agent import IAgent
 from typing import List
 
 class IArea(metaclass=ABCMeta):
     @abstractmethod
-    def get(self):
+    def is_in(self):
         pass
     
 class Area(IArea):
@@ -14,7 +14,10 @@ class Area(IArea):
         self.end_x = end_x
         self.end_y = end_y
 
-    def get(self):
-        pass
+    def is_in(self, agent: IAgent):
+        x, y = agent.position.x, agent.position.y
+        if self.start_x < x and x <= self.end_x and self.start_y < y and y <= self.end_y:
+            return True
+        return False
 
         

@@ -25,6 +25,6 @@ class Agent(IAgent):
         self.interaction_range = 1
 
     def step(self, neighbors: List[IAgent]):
-        self.position.set_x(self.position.x + 0.1)
+        self.position.set_x(self.position.x + 10)
         print("Step Agent (ID: {}) Pos: X:{}, Y: {}".format(self.id, self.position.x, self.position.y))
 
