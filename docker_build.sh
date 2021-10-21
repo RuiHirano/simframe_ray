@@ -1,0 +1,1 @@
+docker build -t simframe_ray:latest .

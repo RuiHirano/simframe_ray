@@ -1,0 +1,23 @@
+# Job to submit a Ray program from a pod outside a running Ray cluster.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ray-test-job
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: ray
+          image: simframe_ray:latest
+          imagePullPolicy: Never
+          env:
+            - name: RAY_CLASTER_HOST
+              value: ray://simframe-cluster-ray-head:10001
+          command: [ "/bin/bash", "-c", "--" ]
+          args:
+            - "python run.py"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
