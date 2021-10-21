@@ -47,10 +47,8 @@ class Master:
             infos = ray.get(wip_engines)
             wip_engines = [engine.poststep.remote() for engine in self.engines]
             ray.get(wip_engines)
-            print(infos)
             print("Finished All Engines Step {}".format(i))
             results.append({"timestamp": i, "agents": [agent for info in infos for agent in info["agents"]]})
-        print(results)
         self.plot(results)
             
 
