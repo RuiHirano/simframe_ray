@@ -5,11 +5,6 @@ from lib.area import Area, IArea
 from typing import List
 import ray
 import scipy.spatial as ss
-import time
-import sys
-import os
-sys.path.append(os.path.dirname(__file__))
-sys.path.append('/home/ray/lib')
 
 class IEngine(metaclass=ABCMeta):
     @abstractmethod
