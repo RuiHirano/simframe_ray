@@ -6,7 +6,7 @@ class Person(Agent):
         super().__init__(id, position, type="Person")
         self.interaction_range = 1
 
-    def step(self, neighbors: List[IAgent]):
+    def step(self, interaction_agents: List[IAgent]):
         self.position.set_x(self.position.x - 5)
         self.position.set_y(self.position.y + 5)
         print("Step Agent (ID: {}) Pos: X:{}, Y: {}".format(self.id, self.position.x, self.position.y))

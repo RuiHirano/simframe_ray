@@ -4,7 +4,7 @@ from typing import List
 # 抽象クラス
 class IAgent(metaclass=ABCMeta):
     @abstractmethod
-    def step(self, neighbors):
+    def step(self, interaction_agents):
         pass
 
 class Position:
@@ -25,7 +25,7 @@ class Agent(IAgent):
         self.position = position
         self.interaction_range = 1
 
-    def step(self, neighbors: List[IAgent]):
+    def step(self, interaction_agents: List[IAgent]):
         self.position.set_x(self.position.x + 10)
         print("Step Agent (ID: {}) Pos: X:{}, Y: {}".format(self.id, self.position.x, self.position.y))
 
