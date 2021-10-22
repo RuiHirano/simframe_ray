@@ -1,6 +1,10 @@
 from lib.master import Master
+from lib.area import Area
+from lib.environment import Environment
+from lib.agent import Agent, Position
 import ray 
 import os
+import random
 import time
 
 RAY_CLUSTER_HOST = os.environ.get('RAY_CLUSTER_HOST')
@@ -25,6 +29,24 @@ if __name__ == "__main__":
     else:
         ray.init()
     print("Head Address: ", RAY_CLUSTER_HOST)
-    master = Master("")
+    area = Area(
+        start_x=0,
+        end_x=300,
+        start_y=0,
+        end_y=300
+    )
+    agents = []
+    agent_num = 100
+    for k in range(agent_num):
+        position = Position(
+            x=area.start_x + (area.end_x-area.start_x) * random.random(),
+            y=area.start_y + (area.end_y-area.start_y) * random.random()
+        )
+        agents.append(Agent(str(k), position))
+    env = Environment()
+    env.set_area(area)
+    env.set_agents(agents)
+    env.set_step_num(20)
+    master = Master(env)
     master.prepare()
     master.run()

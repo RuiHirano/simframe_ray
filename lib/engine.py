@@ -41,7 +41,7 @@ class Engine:
         return self.agents
 
     def prestep(self):
-        print("Prestep: {}. {}", self.id, self.neighbors)
+        print("Prestep: {}".format(self.id))
         # update agents in this area
         self.agents = []
         for agent in self.all_agents:
@@ -58,7 +58,7 @@ class Engine:
                 interaction_agents = [self.all_agents[idx] for idx in interaction_indices]
             agent.step(interaction_agents)
         self.timestamp += 1
-        return {"timestamp": self.timestamp, "id": self.id, "agents": self.agents}
+        return {"timestamp": self.timestamp, "id": self.id, "agents": self.agents, "area": self.area}
 
     def poststep(self):
         print("Poststep: {}".format(self.id))
