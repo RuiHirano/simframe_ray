@@ -2,7 +2,7 @@ from lib.master import Master
 from lib.area import Area
 from lib.environment import Environment
 from lib.agent import Agent, Position
-from model import Car, Person
+from model import Car, Person, Weather
 import ray 
 import os
 import random
@@ -47,7 +47,7 @@ if __name__ == "__main__":
         )
         agents.append(Car(str(k), position))
     
-    person_num = 20
+    person_num = 40
     for k in range(person_num):
         position = Position(
             x=area.start_x + (area.end_x-area.start_x) * random.random(),
@@ -55,10 +55,18 @@ if __name__ == "__main__":
         )
         agents.append(Person(str(k), position))
 
+    '''for i in range(int(area.end_x-area.start_x)):
+        for k in range(int(area.end_y-area.start_y)):
+            position = Position(
+                x=area.start_x + i,
+                y=area.start_y + k
+            )
+            agents.append(Weather(str(k), position))'''
+
     env = Environment()
     env.set_area(area)
     env.set_agents(agents)
-    env.set_step_num(20)
+    env.set_step_num(50)
     master = Master(env)
     master.prepare()
     master.run()

@@ -39,10 +39,10 @@ class Master:
             engines.append(Engine.remote(str(i), area, agents))
 
         for i, engine in enumerate(engines):
+            # TODO: create adaptive area divider
             if i == 0 or i ==2:
                 neighbors = [engines[1]]
             if i == 1:
-                # 競合するとだめなのはなぜ？
                 neighbors = [engines[0], engines[2]] 
             engine.set_neighbors.remote(neighbors)  
             self.engines.append(engine)
