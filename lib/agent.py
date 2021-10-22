@@ -19,8 +19,9 @@ class Position:
         self.y = y
 
 class Agent(IAgent):
-    def __init__(self, id: str, position: Position):
+    def __init__(self, id: str, position: Position, type: str):
         self.id = id
+        self.type = type
         self.position = position
         self.interaction_range = 1
 

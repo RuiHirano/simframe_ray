@@ -19,12 +19,15 @@ class IEngine(metaclass=ABCMeta):
     @abstractmethod
     def get_agents(self, i):
         pass
+    @abstractmethod
+    def set_neighbors(self, neighbors):
+        pass
 
 @ray.remote(num_cpus=1)
 class Engine:
-    def __init__(self, id: str, neighbors: List[IEngine], area: IArea, agents: List[IAgent]):
+    def __init__(self, id: str, area: IArea, agents: List[IAgent]):
         self.id = id
-        self.neighbors = neighbors
+        self.neighbors = []
         self.area = area
         self.agents = agents
         self.all_agents = agents # this area and neighbor area agents
@@ -36,6 +39,9 @@ class Engine:
         # kdtree is None if agents data is empty
         kdtree = ss.KDTree(data, leafsize=10) if len(agents) > 0 else None
         return kdtree
+
+    def set_neighbors(self, neighbors):
+        self.neighbors = neighbors
 
     def get_agents(self):
         return self.agents
@@ -60,13 +66,15 @@ class Engine:
         self.timestamp += 1
         return {"timestamp": self.timestamp, "id": self.id, "agents": self.agents, "area": self.area}
 
-    def poststep(self):
-        print("Poststep: {}".format(self.id))
+    async def poststep(self):
+        # async await is used by design pattern : https://docs.ray.io/en/latest/ray-design-patterns/concurrent-operations-async-actor.html
+        print("Poststep: (ID: {}), timetamp: {}".format(self.id, self.timestamp), self.neighbors)
         # get neighbor area agents
-        neighbor_agents = []
+        refs = []
         for engine in self.neighbors:
-            neighbor_agents.extend(ray.get(engine.get_agents.remote()))
-
+            refs.append(engine.get_agents.remote())
+        neighbor_agents = [data for result in refs for data in await result]
+        
         # update agents kdtree
         self.all_agents = copy.deepcopy(neighbor_agents)
         self.all_agents.extend(self.agents)

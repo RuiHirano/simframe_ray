@@ -2,12 +2,14 @@ from lib.master import Master
 from lib.area import Area
 from lib.environment import Environment
 from lib.agent import Agent, Position
+from model import Car, Person
 import ray 
 import os
 import random
 import time
 
 RAY_CLUSTER_HOST = os.environ.get('RAY_CLUSTER_HOST')
+print("Head Address: ", RAY_CLUSTER_HOST)
 
 def wait_for_nodes(expected):
     # Wait for all nodes to join the cluster.
@@ -28,21 +30,31 @@ if __name__ == "__main__":
         wait_for_nodes(3)
     else:
         ray.init()
-    print("Head Address: ", RAY_CLUSTER_HOST)
+
     area = Area(
+        id="environment",
         start_x=0,
         end_x=300,
         start_y=0,
         end_y=300
     )
     agents = []
-    agent_num = 100
-    for k in range(agent_num):
+    car_num = 20
+    for k in range(car_num):
         position = Position(
             x=area.start_x + (area.end_x-area.start_x) * random.random(),
             y=area.start_y + (area.end_y-area.start_y) * random.random()
         )
-        agents.append(Agent(str(k), position))
+        agents.append(Car(str(k), position))
+    
+    person_num = 20
+    for k in range(person_num):
+        position = Position(
+            x=area.start_x + (area.end_x-area.start_x) * random.random(),
+            y=area.start_y + (area.end_y-area.start_y) * random.random()
+        )
+        agents.append(Person(str(k), position))
+
     env = Environment()
     env.set_area(area)
     env.set_agents(agents)

@@ -8,7 +8,8 @@ class IArea(metaclass=ABCMeta):
         pass
     
 class Area(IArea):
-    def __init__(self, start_x: float, start_y: float, end_x: float, end_y: float):
+    def __init__(self, id: str, start_x: float, start_y: float, end_x: float, end_y: float):
+        self.id = id
         self.start_x = start_x
         self.start_y = start_y
         self.end_x = end_x

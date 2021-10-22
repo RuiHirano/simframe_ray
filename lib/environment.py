@@ -15,6 +15,7 @@ import datetime
 class Environment:
     def __init__(self):
         self.area = Area(
+            id="environment",
             start_x=0,
             end_x=100,
             start_y=0,
