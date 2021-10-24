@@ -11,6 +11,7 @@ from matplotlib import animation
 import numpy as np
 import os
 import datetime
+import time
 
 import multiprocessing
 print("cpu num: ", multiprocessing.cpu_count())
@@ -49,6 +50,7 @@ class Master:
             print(self.engines)
 
     def run(self):
+        start = time.time()
         results = []
         step_num = self.env.step_num
         for i in range(step_num):
@@ -58,8 +60,11 @@ class Master:
             infos = ray.get(wip_engines)
             wip_engines = [engine.poststep.remote() for engine in self.engines]
             ray.get(wip_engines)
-            print("Finished All Engines Step {}".format(i))
+            elapsed_time = time.time() - start
+            print("Finished All Engines Step {},  Elapsed: {:.3f}[sec]".format(i, elapsed_time))
             results.append({"timestamp": i, "data": [{"agents": info["agents"], "area": info["area"]} for info in infos]})
+        elapsed_time = time.time() - start
+        print ("elapsed_time:{0}".format(elapsed_time) + "[sec]")
         self.plot(results, self.env, colored_by="AGENT")
             
 
