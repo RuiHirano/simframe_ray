@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod
 import copy
-from lib.agent import Agent, IAgent
-from lib.area import Area, IArea
+from .agent import Agent, IAgent
+from .area import Area, IArea
 from typing import List
 import ray
 import scipy.spatial as ss

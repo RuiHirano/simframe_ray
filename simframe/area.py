@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from lib.agent import IAgent
+from .agent import IAgent
 from typing import List
 
 class IArea(metaclass=ABCMeta):

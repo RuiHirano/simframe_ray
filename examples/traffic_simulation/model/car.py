@@ -1,4 +1,4 @@
-from lib.agent import IAgent, Agent, Position
+from simframe import IAgent, Agent, Position
 from typing import List
 
 class Car(Agent):
