@@ -1,4 +1,4 @@
-from simframe import Agent, Position, Environment, Area, Master
+from simframe import Agent, Position, Environment, Area, Scenario, Simulator, ScenarioParameter
 from model import Car, Person
 import ray 
 import os
@@ -52,18 +52,14 @@ if __name__ == "__main__":
         )
         agents.append(Person(str(k), position))
 
-    '''for i in range(int(area.end_x-area.start_x)):
-        for k in range(int(area.end_y-area.start_y)):
-            position = Position(
-                x=area.start_x + i,
-                y=area.start_y + k
-            )
-            agents.append(Weather(str(k), position))'''
-
     env = Environment()
     env.set_area(area)
-    env.set_agents(agents)
-    env.set_step_num(50)
-    master = Master(env)
-    master.prepare()
-    master.run()
+
+    sc = Scenario(ScenarioParameter(
+        environment=env,
+        agents=agents,
+        step_num=50,
+    ))
+
+    sim = Simulator(sc)
+    sim.run()
