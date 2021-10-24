@@ -54,8 +54,6 @@ class Master:
         results = []
         step_num = self.env.step_num
         for i in range(step_num):
-            wip_engines = [engine.prestep.remote() for engine in self.engines]
-            ray.get(wip_engines)
             wip_engines = [engine.step.remote() for engine in self.engines]
             infos = ray.get(wip_engines)
             wip_engines = [engine.poststep.remote() for engine in self.engines]

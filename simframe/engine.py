@@ -46,14 +46,13 @@ class Engine:
     def get_agents(self):
         return self.agents
 
-    def prestep(self):
+    def step(self):
         # update agents in this area
         self.agents = []
         for agent in self.all_agents:
             if self.area.is_in(agent):
                 self.agents.append(agent)
 
-    def step(self):
         # get interaction agents
         for agent in self.agents:
             r = agent.interaction_range
