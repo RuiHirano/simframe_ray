@@ -1,8 +1,5 @@
-from lib.master import Master
-from lib.area import Area
-from lib.environment import Environment
-from lib.agent import Agent, Position
-from model import Car, Person, Weather
+from simframe import Agent, Position, Environment, Area, Master
+from model import Car, Person
 import ray 
 import os
 import random

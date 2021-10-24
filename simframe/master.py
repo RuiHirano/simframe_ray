@@ -1,10 +1,10 @@
 from abc import ABCMeta, abstractmethod
 import random
 from typing import List
-from lib.engine import Engine
-from lib.agent import Agent, Position
-from lib.area import Area
-from lib.environment import Environment
+from .engine import Engine
+from .agent import Agent, Position
+from .area import Area
+from .environment import Environment
 import ray
 from matplotlib import pyplot as plt
 from matplotlib import animation
