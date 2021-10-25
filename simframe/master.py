@@ -5,27 +5,26 @@ from .engine import Engine
 from .agent import Agent, Position
 from .area import Area
 from .environment import Environment
-from .scenario import Scenario
 import ray
 from matplotlib import pyplot as plt
 from matplotlib import animation
 import numpy as np
 import os
 import datetime
-import time
 
 import multiprocessing
 print("cpu num: ", multiprocessing.cpu_count())
 
-class Simulator:
-    def __init__(self, scenario: Environment):
-        self.scenario = scenario
-        self.env = scenario.env
+class Master:
+    def __init__(self, env: Environment):
+        self.env = env
         self.engines: List[Engine] = []
 
     def prepare(self):
         area_num = 3 # default is 3 cpu process, divide 3 areas by x axis
-        engines = []
+        #engines = []
+        sim_weather_engines = []
+        sim_traffic_engines = []
         for i in range(area_num):
             # area
             area = Area(
@@ -36,35 +35,54 @@ class Simulator:
                 end_y=self.env.area.end_y
             )
             # agents
-            agents = [agent for agent in self.scenario.agents if area.is_in(agent)]
+            agents = [agent for agent in self.env.agents if area.is_in(agent)]
+
+            # separate agents to weather and traffic
+            weather_agents = [agent for agent in agents if agent.type == "Weather"]
+            traffic_agents = [agent for agent in agents if agent.type == "Person"]
 
             # engine
-            engines.append(Engine.remote(str(i), area, agents))
+            #engines.append(Engine.remote(str(i), area, agents))
+            sim_weather_engines.append(Engine.remote("weather_"+str(i), area, weather_agents))
+            sim_traffic_engines.append(Engine.remote("traffic_"+str(i), area, traffic_agents))
 
-        for i, engine in enumerate(engines):
+            print("Area: {}, Weather: {}, Traffic: {}".format(i, len(weather_agents), len(traffic_agents)))
+        for i, engine in enumerate(sim_weather_engines):
             # TODO: create adaptive area divider
             if i == 0 or i ==2:
-                neighbors = [engines[1]]
+                neighbors = [sim_weather_engines[1]]
             if i == 1:
-                neighbors = [engines[0], engines[2]] 
+                neighbors = [sim_weather_engines[0], sim_weather_engines[2]]
+            neighbors.append(sim_traffic_engines[i]) 
             engine.set_neighbors.remote(neighbors)  
             self.engines.append(engine)
+            print("Weather Engine: {}, Add Neighbors: {}".format(engine, [nei for nei in neighbors]))
+
+        for i, engine in enumerate(sim_traffic_engines):
+            # TODO: create adaptive area divider
+            if i == 0 or i ==2:
+                neighbors = [sim_traffic_engines[1]]
+            if i == 1:
+                neighbors = [sim_traffic_engines[0], sim_traffic_engines[2]]
+            neighbors.append(sim_weather_engines[i]) 
+            engine.set_neighbors.remote(neighbors)  
+            self.engines.append(engine)
+            print("Traffic Engine: {}, Add Neighbors: {}".format(engine, [nei for nei in neighbors]))
+            
 
     def run(self):
-        self.prepare()
-        start = time.time()
         results = []
-        step_num = self.scenario.step_num
+        step_num = self.env.step_num
+        print("Engine Num: {}".format(len(self.engines)))
         for i in range(step_num):
+            wip_engines = [engine.prestep.remote() for engine in self.engines]
+            ray.get(wip_engines)
             wip_engines = [engine.step.remote() for engine in self.engines]
             infos = ray.get(wip_engines)
             wip_engines = [engine.poststep.remote() for engine in self.engines]
             ray.get(wip_engines)
-            elapsed_time = time.time() - start
-            print("Finished All Engines Step {},  Elapsed: {:.3f}[sec]".format(i, elapsed_time))
+            print("Finished All Engines Step {}".format(i))
             results.append({"timestamp": i, "data": [{"agents": info["agents"], "area": info["area"]} for info in infos]})
-        elapsed_time = time.time() - start
-        print ("elapsed_time:{0}".format(elapsed_time) + "[sec]")
         self.plot(results, self.env, colored_by="AGENT")
             
 
@@ -123,16 +141,15 @@ class Simulator:
                 agents = d["agents"]
                 for agent in agents:
                     if agent.type not in agents_type_map.keys():
-                        agents_type_map[agent.type] = {"x": [], "y": [], "color": "red"}
+                        agents_type_map[agent.type] = {"x": [], "y": []}
                     if agent.type not in color_map.keys():
                         color_map[agent.type] = get_random_color()
                     agents_type_map[agent.type]["x"].append(agent.position.x)
                     agents_type_map[agent.type]["y"].append(agent.position.y)
-                    agents_type_map[agent.type]["color"] = agent.color
 
             index = 0
             for k, v in agents_type_map.items():
-                plt.scatter(v["x"], v["y"], c=v["color"], label=k)
+                plt.scatter(v["x"], v["y"], c=color_map[k], label=k)
                 index += 1
             plt.legend(loc="lower left")
 

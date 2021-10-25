@@ -21,6 +21,7 @@ class Position:
 class Agent(IAgent):
     def __init__(self, id: str, position: Position, type: str):
         self.id = id
+        self.color = "blue"
         self.type = type
         self.position = position
         self.interaction_range = 1
