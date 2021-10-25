@@ -46,15 +46,13 @@ class Engine:
     def get_agents(self):
         return self.agents
 
-    def prestep(self):
-        print("Prestep: {}".format(self.id))
+    def step(self):
         # update agents in this area
         self.agents = []
         for agent in self.all_agents:
             if self.area.is_in(agent):
                 self.agents.append(agent)
 
-    def step(self):
         # get interaction agents
         for agent in self.agents:
             r = agent.interaction_range
@@ -68,7 +66,6 @@ class Engine:
 
     async def poststep(self):
         # async await is used by design pattern : https://docs.ray.io/en/latest/ray-design-patterns/concurrent-operations-async-actor.html
-        print("Poststep: (ID: {}), timetamp: {}".format(self.id, self.timestamp), self.neighbors)
         # get neighbor area agents
         refs = []
         for engine in self.neighbors:
