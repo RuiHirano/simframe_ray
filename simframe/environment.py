@@ -21,21 +21,7 @@ class Environment:
             start_y=0,
             end_y=100
         )
-        self.agents = []
-        self.step_num = 0
 
     def set_area(self, area: IArea):
         self.area = area
     
-    def set_agents(self, agents: List[IAgent]):
-        self.agents = agents
-
-    def set_step_num(self, step_num: int):
-        self.step_num = step_num
-
-    def add_agent(self, agent: IAgent):
-        self.agents.append(agent)
-
-    def add_agents(self, agents: List[IAgent]):
-        self.agents.extend(agents)
-
