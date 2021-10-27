@@ -5,6 +5,7 @@ from .area import Area, IArea
 from typing import List
 import ray
 import scipy.spatial as ss
+import time
 
 class IEngine(metaclass=ABCMeta):
     @abstractmethod
@@ -25,8 +26,9 @@ class IEngine(metaclass=ABCMeta):
 
 @ray.remote(num_cpus=1)
 class Engine:
-    def __init__(self, id: str, area: IArea, agents: List[IAgent]):
+    def __init__(self, id: str, type: str, area: IArea, agents: List[IAgent]):
         self.id = id
+        self.type = type
         self.neighbors = []
         self.area = area
         self.agents = agents
@@ -51,7 +53,12 @@ class Engine:
         self.agents = []
         for agent in self.all_agents:
             if self.area.is_in(agent):
-                self.agents.append(agent)
+                if self.type == "Person":
+                    if agent.type == self.type:
+                        self.agents.append(agent)
+                elif self.type == "Weather":
+                    if agent.type == "RAIN" or agent.type == "SUNNY":
+                        self.agents.append(agent)
 
         # get interaction agents
         for agent in self.agents:

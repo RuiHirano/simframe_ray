@@ -52,7 +52,6 @@ if __name__ == "__main__":
                 y=area.start_y + k
             )
             agents.append(Weather(str(k), position))
-
     env = Environment()
     env.set_area(area)
 
