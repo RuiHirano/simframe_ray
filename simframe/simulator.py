@@ -13,6 +13,7 @@ import numpy as np
 import os
 import datetime
 import time
+import copy
 
 import multiprocessing
 print("cpu num: ", multiprocessing.cpu_count())
@@ -61,9 +62,13 @@ class Simulator:
             )
             # agents
             agents = [agent for agent in self.model.agents if area.is_in(agent)]
-
+            submodel = copy.deepcopy(self.model)
+            submodel.set_agents(agents)
+            env = Environment()
+            env.set_area(area)
+            submodel.set_env(env)
             # engine
-            engines.append(Engine.remote(str(i), area, agents))
+            engines.append(Engine.remote(str(i), submodel))
 
         for i, engine in enumerate(engines):
             # TODO: create adaptive area divider
@@ -74,22 +79,21 @@ class Simulator:
             engine.set_neighbors.remote(neighbors)  
             self.engines.append(engine)
 
-    def run(self):
+    def run(self, iteration=10):
         self.prepare()
         start = time.time()
-        results = []
-        step_num = self.model.step_num
-        for i in range(step_num):
+        #results = []
+        for i in range(iteration):
             wip_engines = [engine.step.remote() for engine in self.engines]
-            infos = ray.get(wip_engines)
+            ray.get(wip_engines)
             wip_engines = [engine.poststep.remote() for engine in self.engines]
             ray.get(wip_engines)
             elapsed_time = time.time() - start
             print("Finished All Engines Step {},  Elapsed: {:.3f}[sec]".format(i, elapsed_time))
-            results.append({"timestamp": i, "data": [{"agents": info["agents"], "area": info["area"]} for info in infos]})
+            #results.append({"timestamp": i, "data": [{"agents": info["agents"], "area": info["area"]} for info in infos]})
         elapsed_time = time.time() - start
         print ("elapsed_time:{0}".format(elapsed_time) + "[sec]")
-        self.plot(results, self.env, colored_by="AGENT")
+        #self.plot(results, self.env, colored_by="AGENT")
             
 
     def plot(self, results, env, colored_by="AGENT"):

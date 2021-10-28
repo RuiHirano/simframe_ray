@@ -1,23 +1,17 @@
-from abc import ABCMeta, abstractmethod
-import random
 from typing import List
-from .agent import IAgent
-from .engine import Engine
-from .agent import Agent, Position
-from .area import IArea, Area
+from .agent import Agent
 from .environment import Environment
-import ray
-from matplotlib import pyplot as plt
-from matplotlib import animation
-import numpy as np
-import os
-import datetime
 
 class Model:
-    def __init__(self, agents: List[Agent],  environment: Environment, step_num: int,):
-        self.env = environment
+    def __init__(self):
+        self.env = None
+        self.agents = None
+
+    def step(self):
+        pass
+  
+    def set_agents(self, agents: List[Agent]):
         self.agents = agents
-        self.step_num = step_num
 
-
-    
+    def set_env(self, env: Environment):
+        self.env = env
