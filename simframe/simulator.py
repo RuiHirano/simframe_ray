@@ -5,7 +5,7 @@ from .engine import Engine
 from .agent import Agent, Position
 from .area import Area
 from .environment import Environment
-from .scenario import Scenario
+from .model import Model
 import ray
 from matplotlib import pyplot as plt
 from matplotlib import animation
@@ -18,9 +18,9 @@ import multiprocessing
 print("cpu num: ", multiprocessing.cpu_count())
 
 class Simulator:
-    def __init__(self, scenario: Environment):
-        self.scenario = scenario
-        self.env = scenario.env
+    def __init__(self, model: Model):
+        self.model = model
+        self.env = model.env
         self.engines: List[Engine] = []
 
     def prepare(self):
@@ -36,7 +36,7 @@ class Simulator:
                 end_y=self.env.area.end_y
             )
             # agents
-            agents = [agent for agent in self.scenario.agents if area.is_in(agent)]
+            agents = [agent for agent in self.model.agents if area.is_in(agent)]
 
             # engine
             engines.append(Engine.remote(str(i), area, agents))
@@ -54,7 +54,7 @@ class Simulator:
         self.prepare()
         start = time.time()
         results = []
-        step_num = self.scenario.step_num
+        step_num = self.model.step_num
         for i in range(step_num):
             wip_engines = [engine.step.remote() for engine in self.engines]
             infos = ray.get(wip_engines)

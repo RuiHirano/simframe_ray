@@ -1,4 +1,4 @@
-from simframe import Agent, Position, Environment, Area, Scenario, Simulator, ScenarioParameter
+from simframe import Agent, Position, Environment, Area, Simulator, Model
 from model import Car, Person
 import ray 
 import os
@@ -55,11 +55,11 @@ if __name__ == "__main__":
     env = Environment()
     env.set_area(area)
 
-    sc = Scenario(ScenarioParameter(
+    model = Model(
         environment=env,
         agents=agents,
         step_num=50,
-    ))
+    )
 
-    sim = Simulator(sc)
+    sim = Simulator(model)
     sim.run()
