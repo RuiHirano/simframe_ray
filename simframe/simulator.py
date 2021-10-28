@@ -17,13 +17,37 @@ import time
 import multiprocessing
 print("cpu num: ", multiprocessing.cpu_count())
 
+RAY_CLUSTER_HOST = os.environ.get('RAY_CLUSTER_HOST')
+print("Head Address: ", RAY_CLUSTER_HOST)
+
 class Simulator:
     def __init__(self, model: Model):
         self.model = model
         self.env = model.env
         self.engines: List[Engine] = []
 
+    def wait_for_nodes(self, expected):
+        # Wait for all nodes to join the cluster.
+        while True:
+            resources = ray.cluster_resources()
+            node_keys = [key for key in resources if "node" in key]
+            num_nodes = sum(resources[node_key] for node_key in node_keys)
+            if num_nodes < expected:
+                print("{} nodes have joined so far, waiting for {} more.".format(
+                    num_nodes, expected - num_nodes))
+                time.sleep(1)
+            else:
+                break
+
     def prepare(self):
+
+        if RAY_CLUSTER_HOST:
+            ray.init(address=RAY_CLUSTER_HOST)
+            self.wait_for_nodes(3)
+        else:
+            ray.init()
+
+
         area_num = 3 # default is 3 cpu process, divide 3 areas by x axis
         engines = []
         for i in range(area_num):
