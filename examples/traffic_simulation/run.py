@@ -1,4 +1,5 @@
 from simframe import Agent, Position, Environment, Area, Simulator, Model
+from simframe.utils import SummaryWriter, Visualizer
 from agent import Car, Person
 import ray 
 import os
@@ -7,6 +8,8 @@ import time
 
 class MyModel(Model):
     def __init__(self):
+        self.sw = SummaryWriter()
+        self.vis = Visualizer(self.sw.log_dir)
         area = Area(
             id="environment",
             start_x=0,
@@ -26,7 +29,7 @@ class MyModel(Model):
             )
             self.agents.append(Car(str(k), position))
         
-        person_num = 4000
+        person_num = 40
         for k in range(person_num):
             position = Position(
                 x=area.start_x + (area.end_x-area.start_x) * random.random(),
@@ -35,9 +38,16 @@ class MyModel(Model):
             self.agents.append(Person(str(k), position))
 
 
-    def step(self):
+    def step(self, i):
+        # sw.add_scolar()
+        # vis.add_agents()
         #print("model step", len(self.agents))
+        self.sw.add_scalar("test", len(self.agents), i)
+        self.sw.add_agents(self.agents, i)
         pass
+
+    def terminate(self):
+        self.vis.plot()
 
 if __name__ == "__main__":
 

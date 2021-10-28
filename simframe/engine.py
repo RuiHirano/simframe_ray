@@ -46,7 +46,7 @@ class Engine:
     def get_agents(self):
         return self.model.agents
 
-    def step(self):
+    def step(self, i):
         # update agents in this area
         self.model.agents = []
         for agent in self.all_agents:
@@ -61,11 +61,11 @@ class Engine:
                 interaction_indices = self.kdtree.query_ball_point((agent.position.x, agent.position.y), r)
                 interaction_agents = [self.all_agents[idx] for idx in interaction_indices]
             agent.step(interaction_agents)
-        self.model.step()
+        self.model.step(i)
         self.timestamp += 1
         #return {"timestamp": self.timestamp, "id": self.id, "agents": self.model.agents, "area": self.model.env.area}
 
-    async def poststep(self):
+    async def poststep(self, i):
         # async await is used by design pattern : https://docs.ray.io/en/latest/ray-design-patterns/concurrent-operations-async-actor.html
         # get neighbor area agents
         refs = []
