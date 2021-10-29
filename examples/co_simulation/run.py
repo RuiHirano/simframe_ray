@@ -37,7 +37,7 @@ if __name__ == "__main__":
     )
     agents = []
     
-    person_num = 400
+    person_num = 40000
     for k in range(person_num):
         position = Position(
             x=area.start_x + (area.end_x-area.start_x) * random.random(),
@@ -61,6 +61,6 @@ if __name__ == "__main__":
         step_num=50,
     ))
 
-    sim = Simulator(sc)
+    sim = Simulator(sc, separate=False)
     sim.run()
 
