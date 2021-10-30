@@ -35,8 +35,7 @@ class SummaryWriter:
                 raise TypeError
         json_agents = []
         for agent in agents:
-            json_agents.append(json.dumps(agent, default=default_method))
-        #print(json_agents)
+            json_agents.append(json.loads(json.dumps(agent, default=default_method)))
         self.write("agents.ndjson", {"step": global_step, "agents": json_agents})
         #self.agents_data.append(json.dumps({"agents": json_agents, "step": global_step}))
     
