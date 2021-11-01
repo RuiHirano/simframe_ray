@@ -27,7 +27,7 @@ class SummaryWriter:
             self.scalar_data[tag] = [[scalar_value, global_step]]'''
         self.write("{}.scalar.ndjson".format(tag), {"step": global_step, "value": scalar_value})
 
-    def add_agents(self, agents, global_step: float):
+    def add_agents(self, tag: str, agents, global_step: float):
         def default_method(item):
             if isinstance(item, object) and hasattr(item, '__dict__'):
                 return item.__dict__
@@ -36,6 +36,6 @@ class SummaryWriter:
         json_agents = []
         for agent in agents:
             json_agents.append(json.loads(json.dumps(agent, default=default_method)))
-        self.write("agents.ndjson", {"step": global_step, "agents": json_agents})
+        self.write("{}.agents.ndjson".format(tag), {"step": global_step, "agents": json_agents})
         #self.agents_data.append(json.dumps({"agents": json_agents, "step": global_step}))
     

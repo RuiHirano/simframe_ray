@@ -39,11 +39,8 @@ class MyModel(Model):
 
 
     def step(self, i):
-        # sw.add_scolar()
-        # vis.add_agents()
-        #print("model step", len(self.agents))
         self.sw.add_scalar("test", len(self.agents), i)
-        self.sw.add_agents(self.agents, i)
+        self.sw.add_agents("test", self.agents, i)
         pass
 
     def terminate(self):

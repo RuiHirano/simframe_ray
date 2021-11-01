@@ -49,7 +49,7 @@ class Simulator:
             ray.init()
 
 
-        area_num = 3 # default is 3 cpu process, divide 3 areas by x axis
+        area_num = 1 # default is 3 cpu process, divide 3 areas by x axis
         engines = []
         for i in range(area_num):
             # area
@@ -72,11 +72,11 @@ class Simulator:
 
         for i, engine in enumerate(engines):
             # TODO: create adaptive area divider
-            if i == 0 or i ==2:
+            '''if i == 0 or i ==2:
                 neighbors = [engines[1]]
             if i == 1:
                 neighbors = [engines[0], engines[2]] 
-            engine.set_neighbors.remote(neighbors)  
+            engine.set_neighbors.remote(neighbors)  '''
             self.engines.append(engine)
 
     def run(self, iteration=10):
