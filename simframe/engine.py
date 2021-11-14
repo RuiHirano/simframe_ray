@@ -29,7 +29,7 @@ class IEngine(metaclass=ABCMeta):
 
 @ray.remote(num_cpus=1)
 class Engine:
-    def __init__(self, id: str, type: str, area: IArea, agents: List[IAgent], cosim_address: str, port: int):
+    def __init__(self, id: str, type: str, area: IArea, agents: List[IAgent], my_address: str, cosim_address: str, port: int):
         self.id = id
         self.type = type
         self.neighbors = []
@@ -38,18 +38,18 @@ class Engine:
         self.all_agents = agents # this area and neighbor area agents
         self.timestamp = 0  
         self.kdtree = self.set_agents_tree(self.agents)
+        self.my_address = my_address
         self.cosim_address = cosim_address
         self.port = port
         thread = threading.Thread(target=self.listen_co_simulator)
         thread.start()
-        print("waiting for ready server: {}:{}".format(self.socket.gethostname(), self.port))
-        time.sleep(1)
+        print("waiting for ready server: {}:{}".format(self.my_address, self.port))
+        time.sleep(5)
 
     def listen_co_simulator(self):
         # pkill -KILL -f ray
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        print(socket.gethostname())
-        s.bind((socket.gethostname(), self.port))  # IPとポート番号を指定します
+        s.bind((self.my_address, self.port))  # IPとポート番号を指定します
         s.listen(5)
         while True:
             clientsocket, address = s.accept()
@@ -92,14 +92,7 @@ class Engine:
         self.agents = []
         for agent in self.all_agents:
             if self.area.is_in(agent):
-                if self.type == "NonSeparate":
-                    self.agents.append(agent)
-                elif self.type == "Person":
-                    if agent.type == self.type:
-                        self.agents.append(agent)
-                elif self.type == "Weather":
-                    if agent.type == "RAIN" or agent.type == "SUNNY":
-                        self.agents.append(agent)
+                self.agents.append(agent)
 
         # get interaction agents
         for agent in self.agents:

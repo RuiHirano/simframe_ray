@@ -7,7 +7,8 @@ import time
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-a', '--address')
+parser.add_argument('-c', '--coadd')
+parser.add_argument('-m', '--myadd')
 args = parser.parse_args()
 RAY_CLUSTER_HOST = os.environ.get('RAY_CLUSTER_HOST')
 print("Head Address: ", RAY_CLUSTER_HOST)
@@ -57,6 +58,6 @@ if __name__ == "__main__":
         step_num=10,
     ))
 
-    sim = Simulator(sc, cosim_address=args.address)
+    sim = Simulator(sc, my_address=args.myadd, cosim_address=args.coadd)
     sim.run()
 

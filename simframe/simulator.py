@@ -18,7 +18,8 @@ import multiprocessing
 print("cpu num: ", multiprocessing.cpu_count())
 
 class Simulator:
-    def __init__(self, scenario: Environment, cosim_address: str):
+    def __init__(self, scenario: Environment, my_address: str, cosim_address: str):
+        self.my_address = my_address
         self.cosim_address = cosim_address
         self.scenario = scenario
         self.env = scenario.env
@@ -44,7 +45,7 @@ class Simulator:
                 agents = [agent for agent in self.scenario.agents if area.is_in(agent)]
 
                 # engine
-                engine_grid[k][i] = Engine.remote(str(k)+str(i), "NonSeparate", area, agents, self.cosim_address, port)
+                engine_grid[k][i] = Engine.remote(str(k)+str(i), "NonSeparate", area, agents, self.my_address, self.cosim_address, port)
                 print("Area: x:{}-{}, y:{}-{}, agents: {}".format(area.start_x, area.end_x, area.start_y, area.end_y, len(agents)))
                 port += 1
 
