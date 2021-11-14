@@ -111,7 +111,7 @@ dmypy.json
 
 
 # My Settings
-test.py
+#test.py
 results
 dev.txt
 .pypirc
