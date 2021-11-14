@@ -6,6 +6,9 @@ from typing import List
 import ray
 import scipy.spatial as ss
 import time
+import socket
+import pickle
+import threading
 
 class IEngine(metaclass=ABCMeta):
     @abstractmethod
@@ -26,7 +29,7 @@ class IEngine(metaclass=ABCMeta):
 
 @ray.remote(num_cpus=1)
 class Engine:
-    def __init__(self, id: str, type: str, area: IArea, agents: List[IAgent]):
+    def __init__(self, id: str, type: str, area: IArea, agents: List[IAgent], cosim_address: str, port: int):
         self.id = id
         self.type = type
         self.neighbors = []
@@ -35,6 +38,39 @@ class Engine:
         self.all_agents = agents # this area and neighbor area agents
         self.timestamp = 0  
         self.kdtree = self.set_agents_tree(self.agents)
+        self.cosim_address = cosim_address
+        self.port = port
+        thread = threading.Thread(target=self.listen_co_simulator)
+        thread.start()
+
+    def listen_co_simulator(self):
+        # pkill -KILL -f ray
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        print(socket.gethostname())
+        s.bind((socket.gethostname(), self.port))  # IPとポート番号を指定します
+        s.listen(5)
+        while True:
+            clientsocket, address = s.accept()
+            print(f"Connection from {address} has been established!")
+            msg = pickle.dumps(self.agents)
+            clientsocket.send(msg)
+            clientsocket.close()
+
+    def get_co_agents(self):
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((self.cosim_address, self.port))
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
+        full_msg = b''
+        while True:
+            msg = s.recv(1024)
+            if len(msg) <= 0:
+                break
+            full_msg += msg
+        agents = pickle.loads(full_msg)
+        print(len(agents))
+        time.sleep(1)
+        return agents
 
     def set_agents_tree(self, agents: List[IAgent]):
         data = [(agent.position.x, agent.position.y) for agent in agents]
@@ -81,6 +117,7 @@ class Engine:
         for engine in self.neighbors:
             refs.append(engine.get_agents.remote())
         neighbor_agents = [data for result in refs for data in await result]
+        self.get_co_agents()
         
         # update agents kdtree
         self.all_agents = copy.deepcopy(neighbor_agents)

@@ -37,8 +37,12 @@ if __name__ == "__main__":
     )
     agents = []
     
-    person_num = 40000
-    for k in range(person_num):
+    agent_num_list = [1000, 1000]
+    separate_list = [True, False]
+    result = [[], []]
+    agent_num = 20000
+    separate = True
+    for k in range(agent_num):
         position = Position(
             x=area.start_x + (area.end_x-area.start_x) * random.random(),
             y=area.start_y + (area.end_y-area.start_y) * random.random()
@@ -58,9 +62,26 @@ if __name__ == "__main__":
     sc = Scenario(ScenarioParameter(
         environment=env,
         agents=agents,
-        step_num=50,
+        step_num=10,
     ))
 
-    sim = Simulator(sc, separate=False)
+    sim = Simulator(sc, separate=separate)
+    #start = time.time()
+    print("Agent Num: {}, Separate: {}".format(agent_num, separate))
     sim.run()
+    #elapsed_time = time.time() - start
+    #print("Result: {}, Agent Num: {}, Separate: {}".format(elapsed_time, agent_num, separate))
+    #result[n].append(elapsed_time)
+        
+    '''print("finished")
+    import numpy as np
+    import matplotlib.pyplot as plt 
+
+    plt.plot([1000, 5000, 10000, 50000, 100000], [0.496, 1.482, 3.160, 21.491, 58.595] ,label="Separate")
+    plt.plot([1000, 5000, 10000, 50000, 100000], [0.488, 1.344, 2.440, 20.064, 50.722] ,label="NonSeparate")
+
+    plt.title("Elapsed Time vs Agent Num",fontsize=15)
+    plt.xlabel("agents_num",fontsize=13)
+    plt.ylabel("elapsed_time",fontsize=13)
+    plt.show()'''
 

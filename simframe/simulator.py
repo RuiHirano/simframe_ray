@@ -18,23 +18,17 @@ import multiprocessing
 print("cpu num: ", multiprocessing.cpu_count())
 
 class Simulator:
-    def __init__(self, scenario: Environment, separate: bool = False):
-        self.separate = separate  # WeatherとPersonを分割するかどうか
+    def __init__(self, scenario: Environment, cosim_address: str):
+        self.cosim_address = cosim_address
         self.scenario = scenario
         self.env = scenario.env
         self.engines: List[Engine] = []
 
     def prepare(self):
-        area_num = 3 # default is 3 cpu process, divide 3 areas by x axis
-        area_width_num = 3
+        area_width_num = 2
         area_height_num = 2
         engine_grid = [[None for _ in range(area_width_num)] for _ in range(area_height_num)]
-        weather_engine_grid = [[None for _ in range(area_width_num)] for _ in range(area_height_num)]
-        traffic_engine_grid = [[None for _ in range(area_width_num)] for _ in range(area_height_num)]
-        engines = []
-        sim_weather_engines = []
-        sim_traffic_engines = []
-
+        port = 8000
         for k in range(area_height_num):
             for i in range(area_width_num):
                 # area
@@ -49,132 +43,26 @@ class Simulator:
                 # agents
                 agents = [agent for agent in self.scenario.agents if area.is_in(agent)]
 
-                if self.separate:
-                    # separate agents to weather and traffic
-                    weather_agents = [agent for agent in agents if agent.type == "RAIN" or agent.type == "SUNNY"]
-                    traffic_agents = [agent for agent in agents if agent.type == "Person"]
-
-                    # engine
-                    #engines.append(Engine.remote(str(i), area, agents))
-                    weather_engine_grid[k][i] = Engine.remote("weather_"+str(k)+str(i), "Weather", area, weather_agents)
-                    traffic_engine_grid[k][i] = Engine.remote("traffic_"+str(k)+str(i), "Person", area, traffic_agents)
-                    #sim_weather_engines.append(Engine.remote("weather_"+str(i), "Weather", area, weather_agents))
-                    #sim_traffic_engines.append(Engine.remote("traffic_"+str(i), "Person", area, traffic_agents))
-                    print("Area: {}, Weather: {}, Traffic: {}".format(area, len(weather_agents), len(traffic_agents)))
-                else:
-                    # engine
-                    #engines.append(Engine.remote(str(i), "NonSeparate", area, agents))
-                    engine_grid[k][i] = Engine.remote(str(k)+str(i), "NonSeparate", area, agents)
-                    print("Area: x:{}-{}, y:{}-{}, agents: {}".format(area.start_x, area.end_x, area.start_y, area.end_y, len(agents)))
-        '''for i in range(area_num):
-            # area
-            area = Area(
-                id=str(i),
-                start_x=self.env.area.start_x + (self.env.area.end_x-self.env.area.start_x)*(i/area_num),
-                end_x=self.env.area.start_x + (self.env.area.end_x-self.env.area.start_x)*((i+1)/area_num),
-                start_y=self.env.area.start_y,
-                end_y=self.env.area.end_y
-            )
-            # agents
-            agents = [agent for agent in self.scenario.agents if area.is_in(agent)]
-
-            if self.separate:
-                # separate agents to weather and traffic
-                weather_agents = [agent for agent in agents if agent.type == "RAIN" or agent.type == "SUNNY"]
-                traffic_agents = [agent for agent in agents if agent.type == "Person"]
-
                 # engine
-                #engines.append(Engine.remote(str(i), area, agents))
-                sim_weather_engines.append(Engine.remote("weather_"+str(i), "Weather", area, weather_agents))
-                sim_traffic_engines.append(Engine.remote("traffic_"+str(i), "Person", area, traffic_agents))
-                print("Area: {}, Weather: {}, Traffic: {}".format(i, len(weather_agents), len(traffic_agents)))
-            else:
-                # engine
-                engines.append(Engine.remote(str(i), "NonSeparate", area, agents))
-                print("Area: {}, agents: {}".format(i, len(agents)))'''
-        
-        if self.separate:
-            for k in range(area_height_num):
-                for i in range(area_width_num):
-                    engine = weather_engine_grid[k][i]
-                    neighbors = []
-                    if i != 0:
-                        neighbors.append(weather_engine_grid[k][i-1])
-                    if i != area_width_num-1:
-                        neighbors.append(weather_engine_grid[k][i+1])
-                    if k != 0:
-                        neighbors.append(weather_engine_grid[k-1][i])
-                    if k != area_height_num-1:
-                        neighbors.append(weather_engine_grid[k+1][i])
-                    neighbors.append(traffic_engine_grid[k][i])
-                    engine.set_neighbors.remote(neighbors)  
-                    self.engines.append(engine)
-                    print("Engine: {}, Add Neighbors: {}".format(engine, [nei for nei in neighbors]))
+                engine_grid[k][i] = Engine.remote(str(k)+str(i), "NonSeparate", area, agents, self.cosim_address, port)
+                print("Area: x:{}-{}, y:{}-{}, agents: {}".format(area.start_x, area.end_x, area.start_y, area.end_y, len(agents)))
+                port += 1
 
-            for k in range(area_height_num):
-                for i in range(area_width_num):
-                    engine = traffic_engine_grid[k][i]
-                    neighbors = []
-                    if i != 0:
-                        neighbors.append(traffic_engine_grid[k][i-1])
-                    if i != area_width_num-1:
-                        neighbors.append(traffic_engine_grid[k][i+1])
-                    if k != 0:
-                        neighbors.append(traffic_engine_grid[k-1][i])
-                    if k != area_height_num-1:
-                        neighbors.append(traffic_engine_grid[k+1][i])
-                    neighbors.append(weather_engine_grid[k][i])
-                    engine.set_neighbors.remote(neighbors)  
-                    self.engines.append(engine)
-                    print("Engine: {}, Add Neighbors: {}".format(engine, [nei for nei in neighbors]))
-            '''for i, engine in enumerate(sim_weather_engines):
-                # TODO: create adaptive area divider
-                if i == 0 or i ==2:
-                    neighbors = [sim_weather_engines[1]]
-                if i == 1:
-                    neighbors = [sim_weather_engines[0], sim_weather_engines[2]]
-                neighbors.append(sim_traffic_engines[i]) 
+        for k in range(area_height_num):
+            for i in range(area_width_num):
+                engine = engine_grid[k][i]
+                neighbors = []
+                if i != 0:
+                    neighbors.append(engine_grid[k][i-1])
+                if i != area_width_num-1:
+                    neighbors.append(engine_grid[k][i+1])
+                if k != 0:
+                    neighbors.append(engine_grid[k-1][i])
+                if k != area_height_num-1:
+                    neighbors.append(engine_grid[k+1][i])
                 engine.set_neighbors.remote(neighbors)  
                 self.engines.append(engine)
-                print("Weather Engine: {}, Add Neighbors: {}".format(engine, [nei for nei in neighbors]))
-
-            for i, engine in enumerate(sim_traffic_engines):
-                # TODO: create adaptive area divider
-                if i == 0 or i ==2:
-                    neighbors = [sim_traffic_engines[1]]
-                if i == 1:
-                    neighbors = [sim_traffic_engines[0], sim_traffic_engines[2]]
-                neighbors.append(sim_weather_engines[i]) 
-                engine.set_neighbors.remote(neighbors)  
-                self.engines.append(engine)
-                print("Traffic Engine: {}, Add Neighbors: {}".format(engine, [nei for nei in neighbors]))'''
-        else:
-            for k in range(area_height_num):
-                for i in range(area_width_num):
-                    engine = engine_grid[k][i]
-                    neighbors = []
-                    if i != 0:
-                        neighbors.append(engine_grid[k][i-1])
-                    if i != area_width_num-1:
-                        neighbors.append(engine_grid[k][i+1])
-                    if k != 0:
-                        neighbors.append(engine_grid[k-1][i])
-                    if k != area_height_num-1:
-                        neighbors.append(engine_grid[k+1][i])
-                    engine.set_neighbors.remote(neighbors)  
-                    self.engines.append(engine)
-                    print("Engine: {}, Add Neighbors: {}".format(engine, [nei for nei in neighbors]))
-            
-                    
-            '''for i, engine in enumerate(engines):
-                # TODO: create adaptive area divider
-                if i == 0 or i ==2:
-                    neighbors = [engines[1]]
-                if i == 1:
-                    neighbors = [engines[0], engines[2]]
-                engine.set_neighbors.remote(neighbors)  
-                self.engines.append(engine)
-                print("Engine: {}, Add Neighbors: {}".format(engine, [nei for nei in neighbors]))'''
+                print("Engine: {}, Add Neighbors: {}".format(engine, [nei for nei in neighbors]))
             
 
     def run(self):

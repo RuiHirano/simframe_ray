@@ -10,11 +10,11 @@ class Person(Agent):
     def step(self, interaction_agents: List[IAgent]):
         type = self.majorityWeather(interaction_agents)
         if type == "RAIN":
-            self.position.set_x(self.position.x - 2)
-            self.position.set_y(self.position.y + 2)
+            self.position.set_x(self.position.x)
+            self.position.set_y(self.position.y)
         else:
-            self.position.set_x(self.position.x - 5)
-            self.position.set_y(self.position.y + 5)
+            self.position.set_x(self.position.x)
+            self.position.set_y(self.position.y)
         #print("Step Agent (ID: {}) Pos: X:{}, Y: {}".format(self.id, self.position.x, self.position.y))
 
     def majorityWeather(self, agents):
