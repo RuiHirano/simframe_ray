@@ -1,7 +1,7 @@
 import socket
 import pickle
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.bind(("localhost", 1235))  # IPとポート番号を指定します
+s.bind(("127.0.0.1", 1235))  # IPとポート番号を指定します
 s.listen(5)
 
 data = {1: "Apple", 2: "Orange"}

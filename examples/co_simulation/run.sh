@@ -1,1 +1,1 @@
-docker run --rm -it co-sim:latest bash
+docker run --rm -it -v ~/workspace/simframe_ray/examples/co_simulation:/workspace co-sim:latest bash
