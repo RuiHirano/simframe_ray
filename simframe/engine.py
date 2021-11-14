@@ -42,6 +42,8 @@ class Engine:
         self.port = port
         thread = threading.Thread(target=self.listen_co_simulator)
         thread.start()
+        print("waiting for ready server: {}:{}".format(self.socket.gethostname(), self.port))
+        time.sleep(1)
 
     def listen_co_simulator(self):
         # pkill -KILL -f ray
@@ -57,6 +59,7 @@ class Engine:
             clientsocket.close()
 
     def get_co_agents(self):
+        print("get cosim agents: {}:{}".format(self.cosim_address, self.port))
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect((self.cosim_address, self.port))
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
