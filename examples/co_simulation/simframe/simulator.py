@@ -70,7 +70,7 @@ class Simulator:
         self.prepare(wait)
         num = 5
         total_time = 0
-        for i in range(num):
+        for k in range(num):
             start = time.time()
             #results = []
             step_num = self.scenario.step_num
@@ -85,7 +85,7 @@ class Simulator:
                 #results.append({"timestamp": i, "data": [{"agents": info["agents"], "area": info["area"]} for info in infos]})
             elapsed_time = time.time() - start
             total_time += elapsed_time
-            print("iter: {}, time: {}".format(i, elapsed_time))
+            print("iter: {}, time: {}".format(k, elapsed_time/step_num))
         elapsed_time = total_time/num
         print ("elapsed_time:{0}".format(elapsed_time) + "[sec]")
         #self.plot(results, self.env, colored_by="AGENT")
