@@ -9,6 +9,7 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('-c', '--coadd')
 parser.add_argument('-m', '--myadd')
+args = parser.parse_args()
 RAY_CLUSTER_HOST = os.environ.get('RAY_CLUSTER_HOST')
 print("Head Address: ", RAY_CLUSTER_HOST)
 
