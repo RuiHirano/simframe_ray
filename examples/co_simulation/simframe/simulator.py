@@ -68,7 +68,7 @@ class Simulator:
 
     def run(self):
         self.prepare()
-        num = 10
+        num = 5
         total_time = 0
         for i in range(num):
             start = time.time()
