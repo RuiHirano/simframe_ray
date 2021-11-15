@@ -71,14 +71,14 @@ class Simulator:
         start = time.time()
         #results = []
         step_num = self.scenario.step_num
-        print("Engine Num: {}".format(len(self.engines)))
+        #print("Engine Num: {}".format(len(self.engines)))
         for i in range(step_num):
             wip_engines = [engine.step.remote() for engine in self.engines]
             ray.get(wip_engines)
             wip_engines = [engine.poststep.remote() for engine in self.engines]
             ray.get(wip_engines)
             elapsed_time = time.time() - start
-            print("Finished All Engines Step {},  Elapsed: {:.3f}[sec]".format(i, elapsed_time))
+            #print("Finished All Engines Step {},  Elapsed: {:.3f}[sec]".format(i, elapsed_time))
             #results.append({"timestamp": i, "data": [{"agents": info["agents"], "area": info["area"]} for info in infos]})
         elapsed_time = time.time() - start
         print ("elapsed_time:{0}".format(elapsed_time) + "[sec]")

@@ -53,13 +53,13 @@ class Engine:
         s.listen(5)
         while True:
             clientsocket, address = s.accept()
-            print(f"Connection from {address} has been established!")
+            #print(f"Connection from {address} has been established!")
             msg = pickle.dumps(self.agents)
             clientsocket.send(msg)
             clientsocket.close()
 
     def get_co_agents(self):
-        print("get cosim agents: {}:{}".format(self.cosim_address, self.port))
+        #print("get cosim agents: {}:{}".format(self.cosim_address, self.port))
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect((self.cosim_address, self.port))
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -71,7 +71,7 @@ class Engine:
                 break
             full_msg += msg
         agents = pickle.loads(full_msg)
-        print(len(agents))
+        #print(len(agents))
         time.sleep(1)
         return agents
 
