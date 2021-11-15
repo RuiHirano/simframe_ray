@@ -60,4 +60,5 @@ if __name__ == "__main__":
 
     sim = Simulator(sc, my_address=args.myadd, cosim_address=args.coadd)
     sim.run()
+    time.sleep(5)
 
