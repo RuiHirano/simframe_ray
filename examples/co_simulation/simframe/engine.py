@@ -29,7 +29,7 @@ class IEngine(metaclass=ABCMeta):
 
 @ray.remote(num_cpus=1)
 class Engine:
-    def __init__(self, id: str, type: str, area: IArea, agents: List[IAgent], my_address: str, cosim_address: str, port: int):
+    def __init__(self, id: str, type: str, area: IArea, agents: List[IAgent], my_address: str, cosim_address: str, port: int, wait=False):
         self.id = id
         self.type = type
         self.neighbors = []
@@ -45,6 +45,8 @@ class Engine:
         thread.start()
         print("waiting for ready server: {}:{}".format(self.my_address, self.port))
         time.sleep(2)
+        if wait:
+            time.sleep(10000)
 
     def listen_co_simulator(self):
         # pkill -KILL -f ray

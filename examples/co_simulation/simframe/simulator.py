@@ -25,7 +25,7 @@ class Simulator:
         self.env = scenario.env
         self.engines: List[Engine] = []
 
-    def prepare(self):
+    def prepare(self, wait=False):
         area_width_num = 2
         area_height_num = 2
         engine_grid = [[None for _ in range(area_width_num)] for _ in range(area_height_num)]
@@ -45,7 +45,7 @@ class Simulator:
                 agents = [agent for agent in self.scenario.agents if area.is_in(agent)]
 
                 # engine
-                engine_grid[k][i] = Engine.remote(str(k)+str(i), "NonSeparate", area, agents, self.my_address, self.cosim_address, port)
+                engine_grid[k][i] = Engine.remote(str(k)+str(i), "NonSeparate", area, agents, self.my_address, self.cosim_address, port, wait)
                 print("Area: x:{}-{}, y:{}-{}, agents: {}".format(area.start_x, area.end_x, area.start_y, area.end_y, len(agents)))
                 port += 1
 
@@ -66,8 +66,8 @@ class Simulator:
                 print("Engine: {}, Add Neighbors: {}".format(engine, [nei for nei in neighbors]))
             
 
-    def run(self):
-        self.prepare()
+    def run(self, wait=False):
+        self.prepare(wait)
         num = 5
         total_time = 0
         for i in range(num):
