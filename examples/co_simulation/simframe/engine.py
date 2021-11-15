@@ -72,7 +72,7 @@ class Engine:
             full_msg += msg
         agents = pickle.loads(full_msg)
         #print(len(agents))
-        time.sleep(1)
+        #time.sleep(1)
         return agents
 
     def set_agents_tree(self, agents: List[IAgent]):
