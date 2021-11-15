@@ -44,7 +44,7 @@ class Engine:
         thread = threading.Thread(target=self.listen_co_simulator)
         thread.start()
         print("waiting for ready server: {}:{}".format(self.my_address, self.port))
-        time.sleep(5)
+        time.sleep(2)
 
     def listen_co_simulator(self):
         # pkill -KILL -f ray
