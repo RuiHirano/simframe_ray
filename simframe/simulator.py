@@ -22,6 +22,7 @@ class Simulator:
         self.scenario = scenario
         self.env = scenario.env
         self.engines: List[Engine] = []
+        self.color_map = {"Person": "red", "RAIN": "blue", "SUNNY": "yellow"}
 
     def prepare(self):
         area_num = 3 # default is 3 cpu process, divide 3 areas by x axis
@@ -52,9 +53,12 @@ class Simulator:
 
     def run(self):
         self.prepare()
+        elapsed_time = 0
         start = time.time()
         results = []
         step_num = self.scenario.step_num
+        #anim = Animation(self.env)
+        #anim.run()
         for i in range(step_num):
             wip_engines = [engine.step.remote() for engine in self.engines]
             infos = ray.get(wip_engines)
@@ -62,11 +66,41 @@ class Simulator:
             ray.get(wip_engines)
             elapsed_time = time.time() - start
             print("Finished All Engines Step {},  Elapsed: {:.3f}[sec]".format(i, elapsed_time))
+            agents = []
+            for info in infos:
+                agents.extend(info["agents"])
+            self.plot_by_step(agents, i, elapsed_time)
+            #anim.set_agents(agents)
             results.append({"timestamp": i, "data": [{"agents": info["agents"], "area": info["area"]} for info in infos]})
         elapsed_time = time.time() - start
         print ("elapsed_time:{0}".format(elapsed_time) + "[sec]")
-        self.plot(results, self.env, colored_by="AGENT")
-            
+        #self.plot(results, self.env, colored_by="AGENT")
+
+    def plot_by_step(self, agents, step, time):
+        agents_type_map = {}
+        plt.cla()
+        plt.xlim(self.env.area.start_x,self.env.area.end_x)
+        plt.ylim(self.env.area.start_y,self.env.area.end_y)
+        def get_random_color():
+            return "#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
+
+        x, y = [], []
+
+        for agent in agents:
+            if agent.type not in agents_type_map.keys():
+                agents_type_map[agent.type] = {"x": [], "y": []}
+            if agent.type not in self.color_map.keys():
+                self.color_map[agent.type] = get_random_color()
+            agents_type_map[agent.type]["x"].append(agent.position.x)
+            agents_type_map[agent.type]["y"].append(agent.position.y)
+
+        for k, v in agents_type_map.items():
+            plt.scatter(v["x"], v["y"], c=self.color_map[k], label=k)
+        plt.title("step: {}, time: {:.2f}".format(step, time))
+        plt.legend(loc='lower left')
+        #plt.ion()
+        #plt.draw()
+        plt.pause(0.0001)
 
     def plot(self, results, env, colored_by="AGENT"):
         # colored_by: "AREA" or "AGENT", default is "AGENT"
@@ -153,3 +187,32 @@ class Simulator:
         plt.show()
 
 
+class Animation:
+    def __init__(self, env):
+        self.agents = []
+        self.env= env
+
+    def set_agents(self, agents):
+        self.agents = agents
+
+    def plot_by_step(self, frame):
+        plt.cla()
+        plt.xlim(self.env.area.start_x,self.env.area.end_x)
+        plt.ylim(self.env.area.start_y,self.env.area.end_y)
+        def get_random_color():
+            return "#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
+
+        x, y = [], []
+        color = get_random_color()
+        for agent in self.agents:
+            x.append(agent.position.x)
+            y.append(agent.position.y)
+        plt.scatter(x, y, c=color)
+        plt.legend(loc='lower left')
+    
+    def run(self):
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+
+        anim = animation.FuncAnimation(fig, self.plot_by_step, interval=1000)
+        plt.show()

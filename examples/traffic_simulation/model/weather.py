@@ -3,7 +3,7 @@ from typing import List
 import random
 class Weather(Agent):
     def __init__(self, id: str, position: Position):
-        self.type = "SUNNY" if position.x < 200 and position.y < 150 else "RAIN"
+        self.type = "SUNNY" if position.x < 200 and position.y < 200 else "RAIN"
         super().__init__(id, position, type=self.type)
         print(self.type)
         self.color = "orange" if self.type == "SUNNY" else "blue"

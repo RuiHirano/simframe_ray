@@ -1,6 +1,6 @@
 from simframe import IAgent, Agent, Position
 from typing import List
-
+import time
 class Person(Agent):
     def __init__(self, id: str, position: Position):
         super().__init__(id, position, type="Person")
@@ -12,6 +12,7 @@ class Person(Agent):
     #    #print("Step Agent (ID: {}) Pos: X:{}, Y: {}".format(self.id, self.position.x, self.position.y))
 
     def step(self, interaction_agents: List[IAgent]):
+        time.sleep(0.005)
         #print(interaction_agents)
         type = self.majorityWeather(interaction_agents)
         #print(type)
