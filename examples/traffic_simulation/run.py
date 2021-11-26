@@ -1,3 +1,4 @@
+from examples.traffic_simulation.model.weather import Weather
 from simframe import Agent, Position, Environment, Area, Scenario, Simulator, ScenarioParameter
 from model import Car, Person
 import ray 
@@ -36,13 +37,21 @@ if __name__ == "__main__":
         end_y=300
     )
     agents = []
-    car_num = 20
+    '''car_num = 20
     for k in range(car_num):
         position = Position(
             x=area.start_x + (area.end_x-area.start_x) * random.random(),
             y=area.start_y + (area.end_y-area.start_y) * random.random()
         )
-        agents.append(Car(str(k), position))
+        agents.append(Car(str(k), position))'''
+
+    for x in range(30):
+        for y in range(30):
+            position = Position(
+                x=area.start_x + 10*x,
+                y=area.start_y + 10*y
+            )
+            agents.append(Weather(str(x)+str(y), position))
     
     person_num = 40
     for k in range(person_num):
